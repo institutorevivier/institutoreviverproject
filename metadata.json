@@ -1,0 +1,5 @@
+{
+  "name": "Exam System",
+  "description": "An online platform for administrators to create and manage exams, and for students to take them. Features separate dashboards for different user roles.",
+  "requestFramePermissions": []
+}

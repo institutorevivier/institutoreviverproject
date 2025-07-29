@@ -1,0 +1,52 @@
+
+# Firebase Setup Instructions for Exam Management System
+
+Follow these steps to configure a Firebase project to act as the backend for this application.
+
+## 1. Create a Firebase Project
+1. Go to the [Firebase Console](https://console.firebase.google.com/).
+2. Click "Add project" and follow the on-screen instructions to create a new project. Give it a name like "ExamWebApp".
+
+## 2. Set up Firebase Authentication
+We will use Email/Password authentication for user login.
+1. In the Firebase Console, go to the "Authentication" section from the left-hand menu.
+2. Click the "Get started" button.
+3. In the "Sign-in method" tab, select "Email/Password" from the list.
+4. Enable it and click "Save".
+
+## 3. Set up Firestore Database
+Firestore will be used to store all data for exams, students, and submissions.
+1. From the left-hand menu, go to the "Firestore Database" section.
+2. Click "Create database".
+3. Choose to start in **Production mode**. This is important for security.
+4. Select a location for your database (choose the one closest to your users).
+5. Click "Enable".
+
+## 4. Create Firestore Collections
+You will need to manually create the initial collections to store your data. The application logic is based on these collection names:
+- `users`: To store user data (both admins and students). The document ID can be the Firebase Auth UID.
+- `exams`: To store all exam data.
+- `submissions`: To store student exam submissions.
+
+## 5. Configure Firestore Security Rules
+1. In the "Firestore Database" section, go to the "Rules" tab.
+2. Copy the contents of `firebase-rules.txt` from this project and paste them into the rules editor.
+3. Click "Publish" to save the rules.
+
+## 6. Get Your Firebase Configuration
+1. Go to your Project Settings by clicking the gear icon next to "Project Overview".
+2. In the "General" tab, scroll down to "Your apps".
+3. Click the web icon (`</>`) to register a new web app.
+4. Give it a nickname (e.g., "Exam Web App") and click "Register app".
+5. Firebase will provide you with a `firebaseConfig` object. It will look like this:
+   ```javascript
+   const firebaseConfig = {
+     apiKey: "AIza...",
+     authDomain: "your-project-id.firebaseapp.com",
+     projectId: "your-project-id",
+     storageBucket: "your-project-id.appspot.com",
+     messagingSenderId: "...",
+     appId: "1:..."
+   };
+   ```
+6. You will need to use these credentials in your React application's Firebase initialization file to connect to your new backend. Typically, you would store these in environment variables.
