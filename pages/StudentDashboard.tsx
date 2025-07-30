@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import type { User, Exam, Submission } from '../types';
-import { api } from '../data';
+import { api } from '../data_supabase';
 
 
 interface StudentDashboardProps {
@@ -119,16 +119,16 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onLogo
         const submission = submissions.find(s => s.examId === exam.id);
         if (submission) {
             setInfoModalContent({
-                title: 'Result for ' + exam.title,
-                message: `You have already completed this exam. Your score was ${submission.score.toFixed(2)}%.`
+                title: 'El resultado del examen ' + exam.title,
+                message: `Ya terminaste el examan. Tu resultado es ${submission.score.toFixed(2)}%.`
             });
             return;
         }
 
         if (!exam.isEnabled) {
              setInfoModalContent({
-                title: 'Exam Not Available',
-                message: `This exam is not currently enabled. It is scheduled for ${new Date(exam.dateTime).toLocaleString()}.`
+                title: 'El examen no esta avilitado',
+                message: `Este examen no esta avilitado. El mismo estara disponible el ${new Date(exam.dateTime).toLocaleString()}.`
             });
             return;
         }
@@ -145,8 +145,8 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onLogo
         const newSubmission = newSubmissions.find(s => s.examId === submissionData.examId);
         if (newSubmission) {
              setInfoModalContent({
-                title: 'Exam Submitted!',
-                message: `Your score is ${newSubmission.score.toFixed(2)}%.`
+                title: '¡Examen Teminado!',
+                message: `Tu resultado es ${newSubmission.score.toFixed(2)}%.`
             });
         }
     };
@@ -177,16 +177,16 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onLogo
                 <h2 className="text-3xl font-semibold mb-6">Examenes asignados</h2>
                 {loading ? <p>Cargando Examenes...</p> : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {exams.length > 0 ? exams.map(exam => {
+                        {exams.filter((dato)=> dato.isActivo).length > 0 ? exams.filter((dato)=> dato.isActivo).map(exam => {
                             const submission = submissions.find(s => s.examId === exam.id);
-                            let status: 'Taken' | 'Available' | 'Scheduled' = 'Scheduled';
+                            let status: 'Listo' | 'Disponible' | 'Programado' = 'Programado';
                             let bgColor = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300';
                             
                             if (submission) {
-                                status = 'Taken';
+                                status = 'Listo';
                                 bgColor = 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300';
                             } else if (exam.isEnabled) {
-                                status = 'Available';
+                                status = 'Disponible';
                                 bgColor = 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300';
                             }
                             
@@ -198,7 +198,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onLogo
                                     </div>
                                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{exam.class}</p>
                                     <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">{new Date(exam.dateTime).toLocaleString()}</p>
-                                    {submission && <p className="mt-4 font-bold text-lg text-indigo-600 dark:text-indigo-400">Score: {submission.score.toFixed(2)}%</p>}
+                                    {submission && <p className="mt-4 font-bold text-lg text-indigo-600 dark:text-indigo-400">Resultado: {submission.score.toFixed(2)}%</p>}
                                 </div>
                             );
                         }) : <p>No tenes aun examenes asignados</p>}

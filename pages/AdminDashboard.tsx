@@ -177,7 +177,7 @@ const ExamEditorModal: React.FC<ExamEditorModalProps> = ({ exam, allStudents, on
     };
     
     const handleDelete = async () => {
-        if(exam && window.confirm('Are you sure you want to delete this exam? This action cannot be undone.')){
+        if(exam && window.confirm('¿Estas seguro que quires borrar el examen? esta acción no tiene vuelta atras')){
             setLoading(true);
             await onDelete(exam.id);
             setLoading(false);
@@ -345,7 +345,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onLogout }
                                 <Button onClick={() => handleOpenExamModal()}>Crear exámen</Button>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {exams.map(exam => (
+                                {exams.filter((dato)=> dato.isActivo).map(exam => (
                                     <div key={exam.id} onClick={() => handleOpenExamModal(exam)} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all cursor-pointer">
                                         <div className="flex justify-between items-start">
                                             <h3 className="font-bold text-lg text-gray-900 dark:text-white">{exam.title}</h3>

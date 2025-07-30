@@ -209,9 +209,31 @@ export const api = {
     },
 
     async saveExam(examData: Omit<Exam, 'id'>): Promise<Exam | null> {
-        console.log(examData)
+        console.log(examData.title)
         // Elimina id si existe, para que Supabase lo genere
-        delete (examData as any).id;
+      // if (typeof examData.id === 'number'){
+      //     
+      // }
+       if (typeof (examData as any).id === 'number') {
+
+        const { data, error } = await supabase
+        .from('exams')
+        .update(examData)
+        .eq('id',(examData as any).id )
+        .select()
+        .single();
+    
+    if (error) {
+        console.error('Error al actualizar examen:', error);
+    } else {
+        console.log('Examen actualizado:', data);
+    }
+
+
+
+       }else {delete (examData as any).id;
+    
+       
         console.log("saving an exam")
         const { data, error } = await supabase
             .from('exams')
@@ -224,11 +246,28 @@ export const api = {
             console.error('Error al guardar el examen:', error);
             return null;
         }
-        return data;
+        return data;}
     },
 
     async deleteExam(examId: string): Promise<void> {
-        const { error } = await supabase.from('exams').delete().eq('id', examId);
+        const { data, error } = await supabase
+        .from('exams')
+        .update({
+         
+            isActivo: false
+        })
+        .eq('id',examId)
+        .select()
+        .single();
+    
+    if (error) {
+        console.error('Error al eliminar examen:', error);
+    } else {
+        console.log('Examen eliminado:', data);
+    }
+
+
+       // const { error } = await supabase.from('exams').delete().eq('id', examId);
         handleSupabaseError(error, 'deleteExam');
     },
 

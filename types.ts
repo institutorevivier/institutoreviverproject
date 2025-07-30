@@ -28,6 +28,7 @@ export interface Exam {
   questions: Question[];
   isEnabled: boolean;
   allowedStudentIds: string[];
+  isActivo:boolean;
 }
 
 export interface Submission {

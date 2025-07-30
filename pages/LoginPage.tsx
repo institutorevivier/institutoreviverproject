@@ -17,7 +17,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     setLoading(true);
     const success = await onLogin(username, password);
     if (!success) {
-      setError('Invalid username or password. Try (admin/admin123) or (student1/student123).');
+      setError('Nombre de usuario o contraseña invalida.');
     }
     setLoading(false);
   };
