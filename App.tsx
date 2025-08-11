@@ -14,7 +14,7 @@ const App: React.FC = () => {
   // Simple session persistence check
   useEffect(() => {
     const checkSession = async () => {
-      const user = await api.checkSession();
+      const user = null
       setCurrentUser(user);
       setLoading(false);
     };

@@ -1,3 +1,4 @@
+
 // data_supabase.ts
 import { createClient } from '@supabase/supabase-js';
 import type { User, Exam, Submission, Question } from './types';
@@ -16,10 +17,9 @@ import type { User, Exam, Submission, Question } from './types';
 // For this example, we will use placeholders. The application will not work
 // until these are replaced with your actual Supabase credentials.
 // ===================================================================================
-const supabaseUrl =  import.meta.env.VITE_SUPABASE_URL || 'YOUR_SUPABASE_URL';
-console.log( import.meta.env.VITE_SUPABASE_URL )
-const supabaseAnonKey =  import.meta.env.VITE_SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
+const supabaseUrl = 'https://hdehcpohwibbweonsmdu.supabase.co' //import.meta.env.VITE_SUPABASE_URL_PRO || 'YOUR_SUPABASE_URL';//import.meta.env.VITE_SUPABASE_URL_PRO || 'YOUR_SUPABASE_URL';
 
+const supabaseAnonKey ='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhkZWhjcG9od2liYndlb25zbWR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5NTkwODksImV4cCI6MjA2OTUzNTA4OX0.2bAYupHsnWZAG_Q5RUyAN3G9x9xxqH0Jk04qLT-U2j4' // import.meta.env.VITE_SUPABASE_ANON_KEY_PRO || 'YOUR_SUPABASE_ANON_KEY';//import.meta.env.VITE_SUPABASE_ANON_KEY_PRO || 'YOUR_SUPABASE_ANON_KEY';
 
 
 
@@ -37,8 +37,7 @@ if (supabaseUrl.includes('YOUR_SUPABASE_URL') || supabaseAnonKey.includes('YOUR_
 }
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
-console.log("la supabase")
-console.log(supabaseAnonKey)
+
 export default supabase
 // Helper to handle Supabase query errors
 const handleSupabaseError = (error: any, context: string) => {
@@ -51,32 +50,28 @@ const handleSupabaseError = (error: any, context: string) => {
 export const api = {
     // Session Management
     async checkSession(): Promise<User | null> {
-        try {   
+        try {
             const { data: { session }, error } = await supabase.auth.getSession();
             handleSupabaseError(error, 'checkSession: getSession');
             if (!session?.user) {
                 return null;
             }
             const { data: userProfile, error: profileError } = await supabase
-            .from('users')
-            .select('*')
-            .eq('id', session.user.id)
-            .single();
-        
-        // If no profile, user might be from auth but not in our public table yet
-        if (profileError && profileError.code !== 'PGRST116') { // PGRST116 = 0 rows
-             handleSupabaseError(profileError, 'checkSession: getUserProfile');
-        }
+                .from('users')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
 
-        return userProfile;
+            // If no profile, user might be from auth but not in our public table yet
+            if (profileError && profileError.code !== 'PGRST116') { // PGRST116 = 0 rows
+                handleSupabaseError(profileError, 'checkSession: getUserProfile');
+            }
+
+            return userProfile as User | null;
         } catch (error) {
             console.error('Error al obtener la sesión:', error);
             return null;
         }
-        
-     
-
-       
     },
 
     // NOTE: Supabase uses email for login. We map 'username' to email here.
@@ -100,7 +95,7 @@ export const api = {
         return userProfile;
     },
      async  loginSimple(username: string, password: string) {
-        console.log("el login simple ")
+       
         const { data, error } = await supabase
             .from('users')
             .select('*')
@@ -109,13 +104,12 @@ export const api = {
           //  .eq('username', username)
           //  .eq('password', password)
             .single();
-            console.log("el login simple ")
+          
         if (error) {
-            console.log(error)
-            console.error('Usuario o contraseña incorrectos');
+           
             return null;
         }
-        console.log(data)
+       
         return data;
     },
 
@@ -126,7 +120,7 @@ export const api = {
 
     // Admin: Student Management
     async getAllStudents(): Promise<User[]> {
-        console.log("obtener estudiantessupabase")
+       
         const { data, error } = await supabase
             .from('users')
             .select('*')
@@ -137,16 +131,16 @@ export const api = {
 
     async saveStudent(studentData: Omit<User, 'role'|'id'> | User): Promise<User | null> {
         // Editing an existing studen
-        console.log(studentData)
+      
         if ('id' in studentData && studentData.id) {
             const { id, ...updateData } = studentData;
 
             // Handle password update if provided
-            if (updateData.password) {
-                const { error: authError } = await supabase.auth.updateUser({ password: updateData.password });
-                handleSupabaseError(authError, 'saveStudent: updateUserAuth');
-            }
-            delete updateData.password; // Don't save password in public table
+         //  if (updateData.password) {
+         //      const { error: authError } = await supabase.auth.updateUser({ password: updateData.password });
+         //      handleSupabaseError(authError, 'saveStudent: updateUserAuth');
+         //  }
+         //  delete updateData.password; // Don't save password in public table
 
             const { data, error } = await supabase
                 .from('users')
@@ -158,7 +152,8 @@ export const api = {
                     documentNumber: updateData.documentNumber,
                     phone: updateData.phone,
                     address: updateData.address,
-                 })
+                    password: updateData.password,
+                 } as any)
                 .eq('id', id)
                 .select()
                 .single();
@@ -168,7 +163,7 @@ export const api = {
         } 
         // Creating a new student
         else {
-            console.log("creating a new student")
+          
             const { password, ...profileData } = studentData as Omit<User, 'role'|'id'>;
             if (!password) {
                  throw new Error("Password is required for new students.");
@@ -188,7 +183,7 @@ export const api = {
                         documentNumber: profileData.documentNumber,
                         phone: profileData.phone,
                         address: profileData.address,
-                    })
+                    } as any)
                     .select()
                     .single();
                 if (error) {
@@ -205,69 +200,48 @@ export const api = {
     async getAllExams(): Promise<Exam[]> {
         const { data, error } = await supabase.from('exams').select('*');
         handleSupabaseError(error, 'getAllExams');
-        return data || [];
+        return (data as any) || [];
     },
 
-    async saveExam(examData: Omit<Exam, 'id'>): Promise<Exam | null> {
-        console.log(examData.title)
-        // Elimina id si existe, para que Supabase lo genere
-      // if (typeof examData.id === 'number'){
-      //     
-      // }
-       if (typeof (examData as any).id === 'number') {
+    async saveExam(examData: Exam): Promise<Exam | null> {
+        if (examData.id) { // Update existing exam
+            const { id, ...updateData } = examData;
+            const { data, error } = await supabase
+                .from('exams')
+                .update(updateData as any)
+                .eq('id', id)
+                .select()
+                .single();
 
-        const { data, error } = await supabase
-        .from('exams')
-        .update(examData)
-        .eq('id',(examData as any).id )
-        .select()
-        .single();
-    
-    if (error) {
-        console.error('Error al actualizar examen:', error);
-    } else {
-        console.log('Examen actualizado:', data);
-    }
+            handleSupabaseError(error, 'saveExam: update');
+            return data as any;
+        } else { // Create new exam
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { id, ...insertData } = examData;
+            const { data, error } = await supabase
+                .from('exams')
+                .insert(insertData as any)
+                .select()
+                .single();
 
-
-
-       }else {delete (examData as any).id;
-    
-       
-        console.log("saving an exam")
-        const { data, error } = await supabase
-            .from('exams')
-            .insert(examData)
-            .select()
-            .single();
-
-        handleSupabaseError(error, 'saveExam');
-        if(error){
-            console.error('Error al guardar el examen:', error);
-            return null;
+            handleSupabaseError(error, 'saveExam: insert');
+            return data as any;
         }
-        return data;}
     },
 
-    async deleteExam(examId: string): Promise<void> {
+    async deleteExam(examId: number): Promise<void> {
         const { data, error } = await supabase
         .from('exams')
-        .update({
-         
-            isActivo: false
-        })
-        .eq('id',examId)
+        .update({ isActivo: false } as any)
+        .eq('id', examId)
         .select()
         .single();
     
-    if (error) {
-        console.error('Error al eliminar examen:', error);
-    } else {
-        console.log('Examen eliminado:', data);
-    }
-
-
-       // const { error } = await supabase.from('exams').delete().eq('id', examId);
+        if (error) {
+            console.error('Error al eliminar examen:', error);
+        } else {
+            console.log('Examen eliminado:', data);
+        }
         handleSupabaseError(error, 'deleteExam');
     },
 
@@ -279,7 +253,17 @@ export const api = {
             .contains('allowedStudentIds', [studentId]);
             
         handleSupabaseError(error, 'getExamsForStudent');
-        return data || [];
+        return (data as any) || [];
+    },
+
+    async getExamsAssignedToStudent(studentId: string): Promise<Exam[]> {
+        const { data, error } = await supabase
+            .from('exams')
+            .select('*')
+            .contains('allowedStudentIds', [studentId]);
+            
+        handleSupabaseError(error, 'getExamsAssignedToStudent');
+        return (data as any) || [];
     },
 
     async getSubmissionsForStudent(studentId: string): Promise<Submission[]> {
@@ -289,7 +273,7 @@ export const api = {
             .eq('studentId', studentId);
             
         handleSupabaseError(error, 'getSubmissionsForStudent');
-        return data || [];
+        return (data as any) || [];
     },
 
     // Student: Exam submission
@@ -304,12 +288,12 @@ export const api = {
         if (!exam) throw new Error('Exam not found');
         
         let correctAnswers = 0;
-        (exam.questions as Question[]).forEach((q, index) => {
+        ((exam as any).questions as Question[]).forEach((q, index) => {
             if (q.correctAnswerIndex === submissionData.answers[index]) {
                 correctAnswers++;
             }
         });
-        const score = exam.questions.length > 0 ? (correctAnswers / exam.questions.length) * 100 : 0;
+        const score = (exam as any).questions.length > 0 ? (correctAnswers / (exam as any).questions.length) * 100 : 0;
 
         const newSubmission: Omit<Submission, 'id'> = {
             ...submissionData,
@@ -319,12 +303,12 @@ export const api = {
 
         const { data: insertedSubmission, error: insertError } = await supabase
             .from('submissions')
-            .insert(newSubmission)
+            .insert(newSubmission as any)
             .select()
             .single();
 
         handleSupabaseError(insertError, 'submitExam: insertSubmission');
-        return insertedSubmission;
+        return insertedSubmission as any;
     },
 };
 

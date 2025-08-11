@@ -1,3 +1,4 @@
+
 // data.ts
 
 import type { User, Exam, Submission } from './types';
@@ -11,7 +12,7 @@ let users: User[] = [
 
 let exams: Exam[] = [
     {
-        id: 'exam1',
+        id: 1,
         title: 'React Fundamentals',
         class: 'Web Development 101',
         description: 'A quick quiz on the basics of React hooks, components, and state management.',
@@ -22,9 +23,10 @@ let exams: Exam[] = [
         ],
         isEnabled: true,
         allowedStudentIds: ['student1', 'student2'],
+        isActivo: true,
     },
     {
-        id: 'exam2',
+        id: 2,
         title: 'Advanced TypeScript',
         class: 'Programming II',
         description: 'A test on advanced TypeScript concepts like generics, decorators, and mapped types.',
@@ -35,9 +37,10 @@ let exams: Exam[] = [
         ],
         isEnabled: false,
         allowedStudentIds: ['student1'],
+        isActivo: true,
     },
      {
-        id: 'exam3',
+        id: 3,
         title: 'CSS Grid and Flexbox',
         class: 'Web Design',
         description: 'A practical exam on modern CSS layout techniques.',
@@ -47,6 +50,7 @@ let exams: Exam[] = [
         ],
         isEnabled: true,
         allowedStudentIds: ['student2'],
+        isActivo: true,
     }
 ];
 
@@ -88,7 +92,7 @@ export const api = {
 
     // Admin: Student Management
     async getAllStudents(): Promise<User[]> {
-        console.log("obtener estudiantesslocal")
+     
         await sleep(FAKE_DELAY);
         return JSON.parse(JSON.stringify(users.filter(u => u.role === 'student')));
     },
@@ -129,12 +133,12 @@ export const api = {
         if (index > -1) {
             exams[index] = examData;
         } else {
-            exams.push(examData);
+            exams.push({...examData, id: Date.now()});
         }
         return JSON.parse(JSON.stringify(examData));
     },
 
-    async deleteExam(examId: string): Promise<void> {
+    async deleteExam(examId: number): Promise<void> {
         await sleep(FAKE_DELAY);
         exams = exams.filter(e => e.id !== examId);
     },
@@ -169,7 +173,7 @@ export const api = {
             ...submissionData,
             id: `sub_${Date.now()}`,
             score,
-            submittedAt: new Date().toISOString(),
+            submittedAt: new 'auto',
         };
 
         submissions.push(newSubmission);

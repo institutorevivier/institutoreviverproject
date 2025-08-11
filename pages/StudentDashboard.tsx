@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useCallback } from 'react';
 import type { User, Exam, Submission } from '../types';
 import { api } from '../data_supabase';
@@ -127,8 +128,8 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onLogo
 
         if (!exam.isEnabled) {
              setInfoModalContent({
-                title: 'El examen no esta avilitado',
-                message: `Este examen no esta avilitado. El mismo estara disponible el ${new Date(exam.dateTime).toLocaleString()}.`
+                title: 'El examen esta inhabilitado',
+                message: `Este examen esta inhabilitado. El mismo estara disponible el ${new Date(exam.dateTime).toLocaleString()}.`
             });
             return;
         }

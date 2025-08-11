@@ -33,7 +33,7 @@ export interface Exam {
 
 export interface Submission {
   id: string;
-  examId: string;
+  examId: number;
   studentId: string;
   answers: number[]; // Array of selected option indices
   score: number; // Percentage
