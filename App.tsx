@@ -4,7 +4,7 @@ import type { User } from './types';
 import { LoginPage } from './pages/LoginPage';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { StudentDashboard } from './pages/StudentDashboard';
-import { supabase } from '../utils/supabase'
+
 import { api } from './data_supabase';
 
 const App: React.FC = () => {
@@ -38,6 +38,7 @@ const App: React.FC = () => {
 
   if (loading) {
     return (
+
       <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
         <div className="text-xl font-semibold text-gray-700 dark:text-gray-200">cargando...</div>
       </div>

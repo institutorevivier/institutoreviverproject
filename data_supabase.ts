@@ -1,42 +1,14 @@
 
 // data_supabase.ts
-import { createClient } from '@supabase/supabase-js';
+
 import type { User, Exam, Submission, Question } from './types';
 
-// ===================================================================================
-// IMPORTANT: CONFIGURE YOUR SUPABASE CREDENTIALS
-// ===================================================================================
-// 1. Create a project at https://supabase.com/
-// 2. Go to Project Settings > API
-// 3. Find your "Project URL" and "anon" "public" key.
-// 4. It is best to use environment variables, but you can paste them here for now.
-//
-// const supabaseUrl = process.env.SUPABASE_URL || 'YOUR_SUPABASE_URL';
-// const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
-//
-// For this example, we will use placeholders. The application will not work
-// until these are replaced with your actual Supabase credentials.
-// ===================================================================================
-const supabaseUrl = 'https://hdehcpohwibbweonsmdu.supabase.co' //import.meta.env.VITE_SUPABASE_URL_PRO || 'YOUR_SUPABASE_URL';//import.meta.env.VITE_SUPABASE_URL_PRO || 'YOUR_SUPABASE_URL';
+import { createClient } from '@supabase/supabase-js';
 
-const supabaseAnonKey ='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhkZWhjcG9od2liYndlb25zbWR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5NTkwODksImV4cCI6MjA2OTUzNTA4OX0.2bAYupHsnWZAG_Q5RUyAN3G9x9xxqH0Jk04qLT-U2j4' // import.meta.env.VITE_SUPABASE_ANON_KEY_PRO || 'YOUR_SUPABASE_ANON_KEY';//import.meta.env.VITE_SUPABASE_ANON_KEY_PRO || 'YOUR_SUPABASE_ANON_KEY';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
 
-
-
-if (supabaseUrl.includes('YOUR_SUPABASE_URL') || supabaseAnonKey.includes('YOUR_SUPABASE_ANON_KEY')) {
-    console.error(`
-        ********************************************************************************
-        *                                                                              *
-        *  ERROR: Supabase credentials are not configured.                             *
-        *                                                                              *
-        *  Please update 'data_supabase.ts' with your project's URL and anon key.      *
-        *  The application will not function correctly until this is done.             *
-        *                                                                              *
-        ********************************************************************************
-    `);
-}
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default supabase
 // Helper to handle Supabase query errors
@@ -89,27 +61,28 @@ export const api = {
             .select('*')
             .eq('id', user.id)
             .single();
-            
+
         handleSupabaseError(profileError, 'login: getUserProfile');
-        
+
         return userProfile;
     },
-     async  loginSimple(username: string, password: string) {
-       
+    async loginSimple(username: string, password: string) {
+
         const { data, error } = await supabase
             .from('users')
             .select('*')
             .eq('username', username)
             .eq('password', password)
-          //  .eq('username', username)
-          //  .eq('password', password)
+            //  .eq('username', username)
+            //  .eq('password', password)
             .single();
-          
+        console.log(data)
         if (error) {
-           
+            console.log({ error })
+            console.log(`error al login de ${username} ${password} ${{ error }}`)
             return null;
         }
-       
+
         return data;
     },
 
@@ -120,7 +93,7 @@ export const api = {
 
     // Admin: Student Management
     async getAllStudents(): Promise<User[]> {
-       
+
         const { data, error } = await supabase
             .from('users')
             .select('*')
@@ -129,18 +102,18 @@ export const api = {
         return data || [];
     },
 
-    async saveStudent(studentData: Omit<User, 'role'|'id'> | User): Promise<User | null> {
+    async saveStudent(studentData: Omit<User, 'role' | 'id'> | User): Promise<User | null> {
         // Editing an existing studen
-      
+
         if ('id' in studentData && studentData.id) {
             const { id, ...updateData } = studentData;
 
             // Handle password update if provided
-         //  if (updateData.password) {
-         //      const { error: authError } = await supabase.auth.updateUser({ password: updateData.password });
-         //      handleSupabaseError(authError, 'saveStudent: updateUserAuth');
-         //  }
-         //  delete updateData.password; // Don't save password in public table
+            //  if (updateData.password) {
+            //      const { error: authError } = await supabase.auth.updateUser({ password: updateData.password });
+            //      handleSupabaseError(authError, 'saveStudent: updateUserAuth');
+            //  }
+            //  delete updateData.password; // Don't save password in public table
 
             const { data, error } = await supabase
                 .from('users')
@@ -153,49 +126,49 @@ export const api = {
                     phone: updateData.phone,
                     address: updateData.address,
                     password: updateData.password,
-                 } as any)
+                } as any)
                 .eq('id', id)
                 .select()
                 .single();
 
             handleSupabaseError(error, 'saveStudent: update');
             return data;
-        } 
+        }
         // Creating a new student
         else {
-          
-            const { password, ...profileData } = studentData as Omit<User, 'role'|'id'>;
+
+            const { password, ...profileData } = studentData as Omit<User, 'role' | 'id'>;
             if (!password) {
-                 throw new Error("Password is required for new students.");
+                throw new Error("Password is required for new students.");
             }
-            
+
             // 1. Create user in Supabase Auth
-           
-                const { data, error } = await supabase
-                    .from('users')
-                    .insert({
-                        username: profileData.username,
-                        password: password,
-                        role: 'student',
-                        firstName: profileData.firstName,
-                        lastName: profileData.lastName,
-                        age: profileData.age,
-                        documentNumber: profileData.documentNumber,
-                        phone: profileData.phone,
-                        address: profileData.address,
-                    } as any)
-                    .select()
-                    .single();
-                if (error) {
-                    console.error('Error al crear usuario:', error);
-                    return null;
-                }
-                return data;
-            
-          
+
+            const { data, error } = await supabase
+                .from('users')
+                .insert({
+                    username: profileData.username,
+                    password: password,
+                    role: 'student',
+                    firstName: profileData.firstName,
+                    lastName: profileData.lastName,
+                    age: profileData.age,
+                    documentNumber: profileData.documentNumber,
+                    phone: profileData.phone,
+                    address: profileData.address,
+                } as any)
+                .select()
+                .single();
+            if (error) {
+                console.error('Error al crear usuario:', error);
+                return null;
+            }
+            return data;
+
+
         }
     },
-    
+
     // Admin: Exam Management
     async getAllExams(): Promise<Exam[]> {
         const { data, error } = await supabase.from('exams').select('*');
@@ -231,12 +204,12 @@ export const api = {
 
     async deleteExam(examId: number): Promise<void> {
         const { data, error } = await supabase
-        .from('exams')
-        .update({ isActivo: false } as any)
-        .eq('id', examId)
-        .select()
-        .single();
-    
+            .from('exams')
+            .update({ isEnable: false } as any)
+            .eq('id', examId)
+            .select()
+            .single();
+
         if (error) {
             console.error('Error al eliminar examen:', error);
         } else {
@@ -251,7 +224,7 @@ export const api = {
             .from('exams')
             .select('*')
             .contains('allowedStudentIds', [studentId]);
-            
+
         handleSupabaseError(error, 'getExamsForStudent');
         return (data as any) || [];
     },
@@ -261,7 +234,7 @@ export const api = {
             .from('exams')
             .select('*')
             .contains('allowedStudentIds', [studentId]);
-            
+
         handleSupabaseError(error, 'getExamsAssignedToStudent');
         return (data as any) || [];
     },
@@ -271,7 +244,7 @@ export const api = {
             .from('submissions')
             .select('*')
             .eq('studentId', studentId);
-            
+
         handleSupabaseError(error, 'getSubmissionsForStudent');
         return (data as any) || [];
     },
@@ -286,7 +259,7 @@ export const api = {
 
         handleSupabaseError(examError, 'submitExam: getExam');
         if (!exam) throw new Error('Exam not found');
-        
+
         let correctAnswers = 0;
         ((exam as any).questions as Question[]).forEach((q, index) => {
             if (q.correctAnswerIndex === submissionData.answers[index]) {
