@@ -51,6 +51,7 @@ This project includes a Supabase implementation to serve as a live backend. To u
     -- This links to the private auth.users table
     CREATE TABLE public.users (
       id uuid NOT NULL,
+      password text,
       username text NOT NULL,
       role text NOT NULL,
       "firstName" text NOT NULL,
@@ -69,6 +70,7 @@ This project includes a Supabase implementation to serve as a live backend. To u
       id text NOT NULL DEFAULT ('exam_'::text || (random()::text)),
       title text NOT NULL,
       class text,
+      isActivo boolean,
       description text,
       "dateTime" timestamptz NOT NULL,
       questions jsonb NOT NULL,
@@ -115,3 +117,4 @@ To modify or extend this project, it's helpful to be familiar with the core tech
 - `pages/`: Contains the main page components for different user roles.
 - `firebase-setup.txt`: Instructions for setting up a real Firebase backend.
 - `firebase-rules.txt`: Recommended Firestore security rules for this application.
+

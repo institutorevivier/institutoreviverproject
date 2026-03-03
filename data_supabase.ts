@@ -76,13 +76,13 @@ export const api = {
             //  .eq('username', username)
             //  .eq('password', password)
             .single();
-        console.log(data)
+       //console.log(data)
         if (error) {
             console.log({ error })
             console.log(`error al login de ${username} ${password} ${{ error }}`)
             return null;
         }
-
+        
         return data;
     },
 
