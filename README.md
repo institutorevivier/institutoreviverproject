@@ -1,8 +1,4 @@
 
-
-
-
-
 <div>
   <img align="left" width="7%" src="vite.png">
 </div>

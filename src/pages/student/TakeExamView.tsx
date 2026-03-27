@@ -1,5 +1,7 @@
 import { env } from "@/data_supabase";
 import { Button } from "@/src/components/Button";
+import { Modal } from "@/src/components/Modal";
+import { QuestionsAndAnswers } from "@/src/components/studens/QuestionsAndAnswers";
 import { Exam, Submission } from "@/types";
 import { useState } from "react";
 
@@ -12,7 +14,9 @@ interface TakeExamViewProps {
 
 export const TakeExamView: React.FC<TakeExamViewProps> = ({ exam, studentId, onBack, onSubmit }) => {
     const [answers, setAnswers] = useState<number[]>(Array(exam.questions.length).fill(-1));
+    const [intentos, setIntentos] = useState<number>(1);
     const [loading, setLoading] = useState(false);
+    const [isIntentosModalOpen, setIsIntentosModalOpen] = useState(false);
 
     const handleAnswerChange = (qIndex: number, oIndex: number) => {
         const newAnswers = [...answers];
@@ -21,6 +25,26 @@ export const TakeExamView: React.FC<TakeExamViewProps> = ({ exam, studentId, onB
     };
 
     const allQuestionsAnswered = answers.every(ans => ans !== -1);
+
+
+    const handleIntentos = () => {
+        setIsIntentosModalOpen(true);
+        setIntentos(intentos - 1)
+    }
+    const createSubmission = (answers: number[], exam: Exam): Submission => {
+        return {
+            answers: answers,
+            examId: exam.id,
+            id: "",
+            score: 0,
+            studentId: "",
+            submittedAt: "",
+
+        }
+
+    }
+
+
 
     const handleSubmit = async () => {
         if (!allQuestionsAnswered) return;
@@ -52,12 +76,25 @@ export const TakeExamView: React.FC<TakeExamViewProps> = ({ exam, studentId, onB
                         </div>
                     ))}
                 </div>
-                <div className="mt-8 pt-6 border-t dark:border-gray-700 flex justify-end">
+                <div className="mt-8 pt-6 border-t dark:border-gray-700 flex justify-end mx-6">
+                    <Button className=" mx-2 " onClick={handleIntentos} disabled={!allQuestionsAnswered || loading || intentos == 0}>
+                        {loading ? 'Evalueando...' : `intento ${intentos}`}
+                    </Button>
+
                     <Button onClick={handleSubmit} disabled={!allQuestionsAnswered || loading}>
                         {loading ? 'Enviando...' : 'Enviar examen'}
                     </Button>
                 </div>
             </div>
+            {isIntentosModalOpen && <Modal onClose={() => setIsIntentosModalOpen(false)} title={`Respuestas examen ${exam.title}`}>
+                <QuestionsAndAnswers exam={exam} hasSubmitted={true} submission={createSubmission(answers, exam)} />
+                <div className="text-center py-8">
+
+                    <Button onClick={() => setIsIntentosModalOpen(false)} className="m-6">
+                        continuar con el examen
+                    </Button>
+                </div>
+            </Modal>}
         </div>
     );
 };
