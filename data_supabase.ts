@@ -18,8 +18,9 @@ const handleSupabaseError = (error: any, context: string) => {
         throw new Error(error.message);
     }
 };
-
+export const env = import.meta.env.VITE_ENV;
 export const api = {
+
     // Session Management
     async checkSession(): Promise<User | null> {
         try {
@@ -76,13 +77,13 @@ export const api = {
             //  .eq('username', username)
             //  .eq('password', password)
             .single();
-       //console.log(data)
+        //console.log(data)
         if (error) {
-            console.log({ error })
-            console.log(`error al login de ${username} ${password} ${{ error }}`)
+            console.log("error en el inicio de sesión")
+
             return null;
         }
-        
+
         return data;
     },
 
@@ -203,9 +204,10 @@ export const api = {
     },
 
     async deleteExam(examId: number): Promise<void> {
+
         const { data, error } = await supabase
             .from('exams')
-            .update({ isEnable: false } as any)
+            .update({ isActivo: false } as any)
             .eq('id', examId)
             .select()
             .single();

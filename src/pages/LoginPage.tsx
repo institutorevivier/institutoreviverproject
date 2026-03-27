@@ -1,9 +1,11 @@
 
+import { env } from '@/data_supabase';
 import React, { useState } from 'react';
 
 interface LoginPageProps {
   onLogin: (username: string, password: string) => Promise<boolean>;
 }
+
 
 export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const [username, setUsername] = useState('');
@@ -26,15 +28,15 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900 p-4">
       <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8 space-y-6 transform transition-all hover:scale-105">
         <div className="text-center justify-center aline-center">
-            {/* <img src="./../vite.png" alt=""  className="text-center justify-center "/> */}
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Instituto Reviver</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-2">Inicie sesión para continuar</p>
+          {/* <img src="./../vite.png" alt=""  className="text-center justify-center "/> */}
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Instituto Reviver {env === "DES" && "(DESARROLLO)"}</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-2">Inicie sesión para continuar</p>
         </div>
-        
+
         {error && (
-            <div className="bg-red-100 dark:bg-red-900/30 border-l-4 border-red-500 text-red-700 dark:text-red-300 p-4 rounded-md" role="alert">
-                <p>{error}</p>
-            </div>
+          <div className="bg-red-100 dark:bg-red-900/30 border-l-4 border-red-500 text-red-700 dark:text-red-300 p-4 rounded-md" role="alert">
+            <p>{error}</p>
+          </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
