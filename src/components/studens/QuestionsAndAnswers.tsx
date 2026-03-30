@@ -42,7 +42,7 @@ export const QuestionsAndAnswers = ({ exam, hasSubmitted, submission }: Props) =
                     );
                 }
 
-                const studentAnswer = submission!.answers[qIndex];
+                // const studentAnswer = submission!.answers[qIndex];
                 const isCorrect = isAnswerCorrect(exam, submission!, qIndex);
                 const answerText = getStudentAnswerText(exam, submission!, qIndex);
                 const correctAnswer = question.options[question.correctAnswerIndex];

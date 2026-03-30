@@ -6,6 +6,8 @@ import { api, env } from '../../../data_supabase';
 import { Button } from '../../components/Button';
 import { Modal } from '../../components/Modal';
 import { TakeExamView } from './TakeExamView';
+import { QuestionsAndAnswers } from '@/src/components/studens/QuestionsAndAnswers';
+
 
 
 interface StudentDashboardProps {
@@ -19,7 +21,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onLogo
     const [exams, setExams] = useState<Exam[]>([]);
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [loading, setLoading] = useState(true);
-
+    const [isIntentosModalOpen, setIsIntentosModalOpen] = useState<{ exam: Exam, submission: Submission } | null>(null);
     const [takingExam, setTakingExam] = useState<Exam | null>(null);
     const [infoModalContent, setInfoModalContent] = useState<{ title: string, message: string } | null>(null);
 
@@ -41,10 +43,8 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onLogo
     const handleExamClick = (exam: Exam) => {
         const submission = submissions.find(s => s.examId === exam.id);
         if (submission) {
-            setInfoModalContent({
-                title: 'El resultado del examen ' + exam.title,
-                message: `Ya terminaste el examan. Tu resultado es ${submission.score.toFixed(2)}%.`
-            });
+
+            setIsIntentosModalOpen({ exam, submission });
             return;
         }
 
@@ -114,18 +114,25 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onLogo
                             }
 
                             return (
+
                                 <div key={exam.id} onClick={() => handleExamClick(exam)} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all cursor-pointer">
                                     <div className="flex justify-between items-start">
                                         <h3 className="font-bold text-lg text-gray-900 dark:text-white">{exam.title}</h3>
                                         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${bgColor}`}>{status}</span>
                                     </div>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{exam.class}</p>
-                                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">{new Date(exam.dateTime).toLocaleString()}</p>
-                                    {submission && <p className="mt-4 font-bold text-lg text-indigo-600 dark:text-indigo-400">Resultado: {submission.score.toFixed(2)}%</p>}
+                                    <p key={exam.id + "class"} className="text-sm text-gray-500 dark:text-gray-400 mt-1">{exam.class}</p>
+                                    <p key={exam.id + "date"} className="text-sm text-gray-600 dark:text-gray-300 mt-2">{new Date(exam.dateTime).toLocaleString()}</p>
+                                    {submission && <p key={exam.id + submission.score} className="mt-4 font-bold text-lg text-indigo-600 dark:text-indigo-400">Resultado: {submission.score.toFixed(2)}%</p>}
+
                                 </div>
+
+
+
                             );
+
                         }) : <p>No tenes aun examenes asignados</p>}
                     </div>
+
                 )}
             </main>
 
@@ -138,6 +145,25 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ user, onLogo
                     </div>
                 </Modal>
             )}
+            {/* {isIntentosModalOpen && (<Modal key={exam.id + "modal"} onClose={() => setIsIntentosModalOpen(false)} title={`Respuestas examen ${exam.title}`}>
+                                        <QuestionsAndAnswers key={exam.id} exam={exam} hasSubmitted={true} submission={submission!} />
+                                        <div className="text-center py-8">
+
+
+                                        </div>
+                                    </Modal>)}
+ */}
+            {isIntentosModalOpen && (
+                <Modal key={isIntentosModalOpen.exam.id + "modal"} onClose={() => setIsIntentosModalOpen(null)} title={`Respuestas examen ${isIntentosModalOpen.exam.title}`}>
+                    <p className="mt-4 font-bold text-lg text-indigo-600 dark:text-indigo-400">Resultado: {isIntentosModalOpen.submission!.score.toFixed(2)}%</p>
+                    <QuestionsAndAnswers key={isIntentosModalOpen.exam.id} exam={isIntentosModalOpen.exam} hasSubmitted={true} submission={isIntentosModalOpen.submission!} />
+                    <div className="text-center py-8">
+
+
+                    </div>
+                </Modal>
+            )}
+
         </div>
     );
 };
